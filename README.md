@@ -4,3 +4,7 @@ You can buy wireless numpads, nail them to the wall like a picture frame, and re
 ## Keypad Used
 
 https://www.amazon.com/dp/B07W6W1PF6
+
+## TODO
+
+* Figure out licensing for res sounds from corsica
