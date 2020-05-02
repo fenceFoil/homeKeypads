@@ -188,5 +188,5 @@ try:
 except KeyboardInterrupt:
     exit(0)
 except Exception as ex:
-    error ("Unexpected error in keypad entry state machine:\n", ex)
+    logger.exception("Unexpected error in keypad entry state machine")
     play_sound("error")
