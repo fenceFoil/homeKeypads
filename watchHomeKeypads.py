@@ -63,15 +63,17 @@ def use_pg_cursor_to (cursorFunc):
         if(connection):
             cursor.close()
             connection.close()
-            print("PostgreSQL connection is closed")
+            debug("PostgreSQL connection is closed")
 
 def insert_weight (weight):
     def inserter(cursor):
+        info ("Inserting weight: {}".format(weight))
         cursor.execute("INSERT INTO weight (weight_time, weight_lbs) VALUES (%s,%s)", (datetime.now(), weight))
     return inserter
 
 def insert_sleep (sleepHrs):
     def inserter(cursor):
+        info ("Inserting sleep: {}".format(sleepHrs))
         cursor.execute("INSERT INTO sleep (sleep_entering_date, first_sleep) VALUES (%s,%s)", (datetime.now(), sleepHrs))
     return inserter
 
