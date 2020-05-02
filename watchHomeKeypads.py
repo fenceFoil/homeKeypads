@@ -162,13 +162,13 @@ ENTER_WEIGHT_ENTRY_STATE = copy.deepcopy(GENERIC_INPUT_NUM_STATE)
 ENTER_WEIGHT_ENTRY_STATE["SUBMIT_TO"] = insert_weight
 ENTER_SLEEP_ENTRY_STATE["SUBMIT_SOUND"] = "savedWeight"
 
-MAIN_STATE = {
+MAIN_STATE.update({
     "INPUTS": {
         13: [sound_player('enterWeight'),move_state(ENTER_WEIGHT_ENTRY_STATE)],
         55: [sound_player('enterSleep'),move_state(ENTER_SLEEP_ENTRY_STATE)],
         96: sound_player('key')
     }
-}
+})
 curr_state = MAIN_STATE
 
 try:
