@@ -31,6 +31,8 @@ if not os.path.isfile('.gotifyWasTestedForHomeKeypads'):
     warning("New gotify logger set up. This is a test message.")
     open('.gotifyWasTestedForHomeKeypads', 'a').close()
 
+info ("New instance started")
+
 # ---- END LOGGER SETUP ----
 
 def play_sound(soundName, blocking=False):
