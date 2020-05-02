@@ -1,10 +1,11 @@
 from datetime import datetime
+from gotifyLoggingHandler import GotifyHandler
 import keyboard
-import psycopg2
-import os
 import logging
 from logging import debug, info, warning, error, critical
-from gotifyLoggingHandler import GotifyHandler
+import psycopg2
+import os
+import subprocess
 
 logFormat = "[%(levelname)s] %(asctime)s: %(message)s"
 logFormatter = logging.Formatter(logFormat)
@@ -25,6 +26,12 @@ logging.getLogger().addHandler(gotifyHandler)
 if not os.path.isfile('.gotifyWasTestedForHomeKeypads'):
     warning("New gotify logger set up. This is a test message.")
     open('.gotifyWasTestedForHomeKeypads', 'a').close()
+
+def play_sound(soundName):
+    subprocess.Popen(["aplay", "homeKeypads/sounds/{}.wav".format(soundName)])
+
+def log_self_tracking_data(table, data):
+    
 
 def log_to_debug_pg (msg):
     connection = None

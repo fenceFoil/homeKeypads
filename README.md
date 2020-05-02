@@ -5,6 +5,12 @@ You can buy wireless numpads, nail them to the wall like a picture frame, and re
 
 https://www.amazon.com/dp/B07W6W1PF6
 
+Scancodes for each key:
+
+![](Scancodes.png)
+
+To test scancodes, restore the git tag scancodeTestingTool, and watchHomeKeypads.py (with the setup below for environment variables) will log scancodes to postgresql.
+
 ## Setup
 
 Add to .bashrc to appear as the default app accepting keyboard input when you boot the pi:
