@@ -187,6 +187,6 @@ try:
             play_sound("nope")
 except KeyboardInterrupt:
     exit(0)
-except (Exception, Error) as ex:
+except Exception as ex:
     error ("Unexpected error in keypad entry state machine:\n", ex)
     play_sound("error")
