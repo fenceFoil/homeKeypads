@@ -58,7 +58,7 @@ def use_pg_cursor_to (cursorFunc):
         #cursor.execute("INSERT INTO debug_temp (message_time, log_entry) VALUES (%s,%s)", (datetime.now(), msg))
         cursorFunc(cursor)
         connection.commit()
-    except (Exception, psycopg2.Error) as ex:
+    except (Exception, psycopg2.Error):
         exception ("Error while connecting to PostgreSQL")
         play_sound("error")
     finally:
