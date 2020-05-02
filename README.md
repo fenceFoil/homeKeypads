@@ -13,8 +13,15 @@ export KEYPADS_PG_USERNAME="yourdatabaseusername"
 export KEYPADS_PG_PASSWORD="password you chose for that user"
 export KEYPADS_PG_HOSTNAME="your database's address"
 export KEYPADS_PG_DB_NAME="selftracking"
-sudo python3 /home/pi/homeKeypads/watchHomeKeypads.py
+export GOTIFY_ADDRESS=""
+export GOTIFY_APIKEY=""
+export GOTIFY_PRIORITY="8"
+sudo -E python3 /home/pi/homeKeypads/watchHomeKeypads.py
 
 ## TODO
 
 * Figure out licensing for res sounds from corsica
+
+## Icon Credit
+
+Keypad by Scott Lewis from the Noun Project
