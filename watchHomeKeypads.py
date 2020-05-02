@@ -12,6 +12,7 @@ try:
                                   database = os.environ["KEYPADS_PG_DB_NAME"])
     cursor = connection.cursor()
     cursor.execute("INSERT INTO debug_temp (message_time, log_entry) VALUES (%s,%s)", (datetime.now(), "hello world"))
+    connection.commit()
 except (Exception, psycopg2.Error) as error:
     print ("Error while connecting to PostgreSQL", error)
 finally:
