@@ -168,10 +168,14 @@ MAIN_STATE = {
 }
 curr_state = MAIN_STATE
 
-while True:
-    last_scancode = keyboard.read_event().scan_code
-    if hasattr(curr_state["INPUTS"][last_scancode], "__iter__"):
-        for action in curr_state["INPUTS"][last_scancode]:
-            action()
-    else:
-        curr_state["INPUTS"][last_scancode]()
+try:
+    while True:
+        last_scancode = keyboard.read_event().scan_code
+        if hasattr(curr_state["INPUTS"][last_scancode], "__iter__"):
+            for action in curr_state["INPUTS"][last_scancode]:
+                action()
+        else:
+            curr_state["INPUTS"][last_scancode]()
+except:
+    error ("Unexpected error in keypad entry state machine:\n", error)
+    play_sound("error")
