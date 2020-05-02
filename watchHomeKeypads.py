@@ -113,7 +113,7 @@ def append_digit():
         play_sound('nope')
     else:
         curr_digits += str(DIGIT_MAP[last_scancode])
-        play_sound(str(DIGIT_MAP[last_scancode]))
+        play_sound(str(DIGIT_MAP[last_scancode]) if DIGIT_MAP[last_scancode] != '.' else 'point')
 
 def remove_digit():
     global curr_digits
