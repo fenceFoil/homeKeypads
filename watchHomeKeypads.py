@@ -172,7 +172,7 @@ curr_state = MAIN_STATE
 try:
     print ("Entered Home Keypad Entry state engine. If you want bash, press Ctrl+C")
     while True:
-        keyEvent = keyboard.read_event().scan_code
+        keyEvent = keyboard.read_event()
         if keyEvent.event_type != 'down':
             continue
 
