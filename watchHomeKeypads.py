@@ -3,7 +3,7 @@ from datetime import datetime
 from gotifyLoggingHandler import GotifyHandler
 import keyboard
 import logging
-from logging import debug, info, warning, error, critical
+from logging import debug, info, warning, error, critical, exception
 import psycopg2
 import time
 import os
@@ -188,5 +188,5 @@ try:
 except KeyboardInterrupt:
     exit(0)
 except Exception as ex:
-    logger.exception("Unexpected error in keypad entry state machine")
+    exception("Unexpected error in keypad entry state machine")
     play_sound("error")
