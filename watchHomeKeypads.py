@@ -169,6 +169,7 @@ MAIN_STATE = {
 curr_state = MAIN_STATE
 
 try:
+    print ("Entered Home Keypad Entry state engine. If you want bash, press Ctrl+C")
     while True:
         last_scancode = keyboard.read_event().scan_code
         if hasattr(curr_state["INPUTS"][last_scancode], "__iter__"):
@@ -176,6 +177,8 @@ try:
                 action()
         else:
             curr_state["INPUTS"][last_scancode]()
+except KeyboardInterrupt:
+    exit(0)
 except:
     error ("Unexpected error in keypad entry state machine:\n", error)
     play_sound("error")
