@@ -83,9 +83,10 @@ def insert_sleep (sleepHrs):
 # 
 
 last_scancode = 0
-curr_state = MAIN_STATE
+curr_state = None
 
 def move_state(newState):
+    global curr_state
     curr_state = newState
 
 curr_digits = ''
@@ -165,6 +166,7 @@ MAIN_STATE = {
         96: sound_player('key')
     }
 }
+curr_state = MAIN_STATE
 
 while True:
     last_scancode = keyboard.read_event().scan_code
