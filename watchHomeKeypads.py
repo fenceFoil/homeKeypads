@@ -84,6 +84,7 @@ def insert_sleep (sleepHrs):
 
 last_scancode = 0
 curr_state = None
+MAIN_STATE = None # Avoid catch-22 as sub-states note they want to return to MAIN_STATE
 
 def move_state(newState):
     global curr_state
