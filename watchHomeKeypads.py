@@ -71,7 +71,7 @@ def use_pg_cursor_to (cursorFunc):
 def insert_weight (weight):
     def insert_values(cursor):
         info ("Inserting weight: {}".format(weight))
-        cursor.execute("INSERT INTO weight (weight_time, weight_lbs) VALUES (%s,%s)", (datetime.now(), weight))
+        cursor.execute("INSERT INTO weight (weigh_time, weight_lbs) VALUES (%s,%s)", (datetime.now(), weight))
     use_pg_cursor_to(insert_values)
 
 def insert_sleep (sleepHrs):
