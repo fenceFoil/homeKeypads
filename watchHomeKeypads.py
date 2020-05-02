@@ -57,7 +57,8 @@ def use_pg_cursor_to (cursorFunc):
         cursorFunc(cursor)
         connection.commit()
     except (Exception, psycopg2.Error) as ex:
-        error ("Error while connecting to PostgreSQL", ex)
+        exception ("Error while connecting to PostgreSQL")
+        play_sound("error")
     finally:
         #closing database connection.
         if(connection):
