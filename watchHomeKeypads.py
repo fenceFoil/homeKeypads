@@ -77,7 +77,7 @@ def insert_weight (weight):
 def insert_sleep (sleepHrs):
     def insert_values(cursor):
         info ("Inserting sleep: {}".format(sleepHrs))
-        cursor.execute("INSERT INTO sleep (sleep_entering_date, first_sleep) VALUES (%s,%s) ON DUPLICATE KEY UPDATE", (datetime.now(), sleepHrs))
+        cursor.execute("INSERT INTO sleep (sleep_entering_date, first_sleep) VALUES (%s,%s) ON conflict (sleep_entering_date) do update set first_sleep = excluded.first_sleep", (datetime.now(), sleepHrs))
     use_pg_cursor_to(insert_values)
 
 #
