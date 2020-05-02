@@ -172,7 +172,11 @@ curr_state = MAIN_STATE
 try:
     print ("Entered Home Keypad Entry state engine. If you want bash, press Ctrl+C")
     while True:
-        last_scancode = keyboard.read_event().scan_code
+        keyEvent = keyboard.read_event().scan_code
+        if keyEvent.event_type != 'down':
+            continue
+
+        last_scancode = keyEvent.scan_code
         if hasattr(curr_state["INPUTS"][last_scancode], "__iter__"):
             for action in curr_state["INPUTS"][last_scancode]:
                 action()
