@@ -132,7 +132,7 @@ def digit_submitter():
     if curr_state["SUBMIT_SOUND"]:
         play_sound(curr_state["SUBMIT_SOUND"], blocking=True)
     for digit in curr_digits:
-        time.sleep(0.5)
+        time.sleep(1)
         play_sound(str(digit), blocking=True)
 
 GENERIC_INPUT_NUM_STATE = {
