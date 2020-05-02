@@ -15,6 +15,6 @@ class GotifyHandler(logging.Handler):
         try:
             response = requests.post(self.address+'/message', params={"token":self.apiKey}, json={'message':msg, 'title':title, 'priority':self.priority})
             if response.status_code != 200:
-                print ("GotifyHandler.emit(): server error {}".format(response.status_code))
+                logging.debug("GotifyHandler.emit(): server error {}, description: {}".format(response.status_code, response.text))
         except requests.exceptions.ConnectionError:
             print ("GotifyHandler.emit(): connection error. not retrying.")
