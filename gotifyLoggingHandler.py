@@ -6,7 +6,7 @@ class GotifyHandler(logging.Handler):
         logging.Handler.__init__(self)
         self.address = address
         self.apiKey = apiKey
-        self.priority = priority if priority else 8
+        self.priority = int(priority) if priority else 8
 
     def emit(self, record):
         # Make a short title (handy for calls to logging.exception())
@@ -15,6 +15,6 @@ class GotifyHandler(logging.Handler):
         try:
             response = requests.post(self.address+'/message', params={"token":self.apiKey}, json={'message':msg, 'title':title, 'priority':self.priority})
             if response.status_code != 200:
-                logging.debug("GotifyHandler.emit(): server error {}, description: {}".format(response.status_code, response.text))
+                print ("GotifyHandler.emit(): server error {}, description: {}".format(response.status_code, response.text))
         except requests.exceptions.ConnectionError:
             print ("GotifyHandler.emit(): connection error. not retrying.")
