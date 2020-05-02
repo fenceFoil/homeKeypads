@@ -112,7 +112,7 @@ def append_digit():
     if '.' in curr_digits and last_scancode == 83:
         play_sound('nope')
     else:
-        curr_digits += DIGIT_MAP[last_scancode]
+        curr_digits += str(DIGIT_MAP[last_scancode])
         play_sound(str(DIGIT_MAP[last_scancode]))
 
 def remove_digit():
