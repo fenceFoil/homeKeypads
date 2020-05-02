@@ -3,6 +3,7 @@ import keyboard
 import psycopg2
 import os
 
+connection = None
 try:
     connection = psycopg2.connect(user = os.environ['KEYPADS_PG_USERNAME'],
                                   password = os.environ['KEYPADS_PG_PASSWORD'],
