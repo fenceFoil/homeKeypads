@@ -56,8 +56,8 @@ def use_pg_cursor_to (cursorFunc):
         #cursor.execute("INSERT INTO debug_temp (message_time, log_entry) VALUES (%s,%s)", (datetime.now(), msg))
         cursorFunc(cursor)
         connection.commit()
-    except (Exception, psycopg2.Error) as error:
-        error ("Error while connecting to PostgreSQL", error)
+    except (Exception, psycopg2.Error) as ex:
+        error ("Error while connecting to PostgreSQL", ex)
     finally:
         #closing database connection.
         if(connection):
@@ -187,6 +187,6 @@ try:
             play_sound("nope")
 except KeyboardInterrupt:
     exit(0)
-except:
-    error ("Unexpected error in keypad entry state machine:\n", error)
+except Exception as ex:
+    error ("Unexpected error in keypad entry state machine:\n", ex)
     play_sound("error")
