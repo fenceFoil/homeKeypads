@@ -144,6 +144,7 @@ GENERIC_INPUT_NUM_STATE = {
     "SUBMIT_TO": None,
     "SUBMIT_SOUND": None,
     "INPUTS": {
+        1: move_state(MAIN_STATE),
         71: append_digit,
         72: append_digit,
         73: append_digit,
