@@ -26,21 +26,25 @@ if not os.path.isfile('.gotifyWasTestedForHomeKeypads'):
     warning("New gotify logger set up. This is a test message.")
     open('.gotifyWasTestedForHomeKeypads', 'a').close()
 
-connection = None
-try:
-    connection = psycopg2.connect(user = os.environ['KEYPADS_PG_USERNAME'],
-                                  password = os.environ['KEYPADS_PG_PASSWORD'],
-                                  host = os.environ['KEYPADS_PG_HOSTNAME'],
-                                  port = 5432,
-                                  database = os.environ["KEYPADS_PG_DB_NAME"])
-    cursor = connection.cursor()
-    cursor.execute("INSERT INTO debug_temp (message_time, log_entry) VALUES (%s,%s)", (datetime.now(), "hello world"))
-    connection.commit()
-except (Exception, psycopg2.Error) as error:
-    error ("Error while connecting to PostgreSQL", error)
-finally:
-    #closing database connection.
-    if(connection):
-        cursor.close()
-        connection.close()
-        print("PostgreSQL connection is closed")    
+def log_to_debug_pg (msg):
+    connection = None
+    try:
+        connection = psycopg2.connect(user = os.environ['KEYPADS_PG_USERNAME'],
+                                    password = os.environ['KEYPADS_PG_PASSWORD'],
+                                    host = os.environ['KEYPADS_PG_HOSTNAME'],
+                                    port = 5432,
+                                    database = os.environ["KEYPADS_PG_DB_NAME"])
+        cursor = connection.cursor()
+        cursor.execute("INSERT INTO debug_temp (message_time, log_entry) VALUES (%s,%s)", (datetime.now(), msg))
+        connection.commit()
+    except (Exception, psycopg2.Error) as error:
+        error ("Error while connecting to PostgreSQL", error)
+    finally:
+        #closing database connection.
+        if(connection):
+            cursor.close()
+            connection.close()
+            print("PostgreSQL connection is closed")    
+
+while True:
+    log_to_debug_pg(keyboard.read_event().to_json())
