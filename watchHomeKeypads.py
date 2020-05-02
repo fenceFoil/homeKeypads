@@ -1,11 +1,15 @@
+import copy
 from datetime import datetime
 from gotifyLoggingHandler import GotifyHandler
 import keyboard
 import logging
 from logging import debug, info, warning, error, critical
 import psycopg2
+import time
 import os
 import subprocess
+
+# ---- LOGGER SETUP ----
 
 logFormat = "[%(levelname)s] %(asctime)s: %(message)s"
 logFormatter = logging.Formatter(logFormat)
@@ -27,13 +31,20 @@ if not os.path.isfile('.gotifyWasTestedForHomeKeypads'):
     warning("New gotify logger set up. This is a test message.")
     open('.gotifyWasTestedForHomeKeypads', 'a').close()
 
-def play_sound(soundName):
-    subprocess.Popen(["aplay", "homeKeypads/sounds/{}.wav".format(soundName)])
+# ---- END LOGGER SETUP ----
 
-def log_self_tracking_data(table, data):
-    
+def play_sound(soundName, blocking=False):
+    if blocking:
+        subprocess.Popen(["aplay", "homeKeypads/sounds/{}.wav".format(soundName)]).wait()
+    else:
+        subprocess.Popen(["aplay", "homeKeypads/sounds/{}.wav".format(soundName)])
 
-def log_to_debug_pg (msg):
+def sound_player(soundName):
+    def player():
+        play_sound(soundName)
+    return player
+
+def use_pg_cursor_to (cursorFunc):
     connection = None
     try:
         connection = psycopg2.connect(user = os.environ['KEYPADS_PG_USERNAME'],
@@ -42,7 +53,8 @@ def log_to_debug_pg (msg):
                                     port = 5432,
                                     database = os.environ["KEYPADS_PG_DB_NAME"])
         cursor = connection.cursor()
-        cursor.execute("INSERT INTO debug_temp (message_time, log_entry) VALUES (%s,%s)", (datetime.now(), msg))
+        #cursor.execute("INSERT INTO debug_temp (message_time, log_entry) VALUES (%s,%s)", (datetime.now(), msg))
+        cursorFunc(cursor)
         connection.commit()
     except (Exception, psycopg2.Error) as error:
         error ("Error while connecting to PostgreSQL", error)
@@ -51,7 +63,113 @@ def log_to_debug_pg (msg):
         if(connection):
             cursor.close()
             connection.close()
-            print("PostgreSQL connection is closed")    
+            print("PostgreSQL connection is closed")
+
+def insert_weight (weight):
+    def inserter(cursor):
+        cursor.execute("INSERT INTO weight (weight_time, weight_lbs) VALUES (%s,%s)", (datetime.now(), weight))
+    return inserter
+
+def insert_sleep (sleepHrs):
+    def inserter(cursor):
+        cursor.execute("INSERT INTO sleep (sleep_entering_date, first_sleep) VALUES (%s,%s)", (datetime.now(), sleepHrs))
+    return inserter
+
+#
+# The keypad entry system is a state machine. 
+# Inputs are scancodes, mapped to functions.
+# States always timeout after a while.
+# Unknown scancodes make mad beeps.
+# 
+
+last_scancode = 0
+curr_state = MAIN_STATE
+
+def move_state(newState):
+    curr_state = newState
+
+curr_digits = ''
+
+def append_digit():
+    DIGIT_MAP = {
+        71: 7,
+        72: 8,
+        73: 9,
+        75: 4,
+        76: 5,
+        77: 6,
+        79: 1,
+        80: 2,
+        81: 3,
+        82: 0,
+        83: '.'
+    }
+    global curr_digits
+    if '.' in curr_digits and last_scancode == 83:
+        play_sound('nope')
+    else:
+        curr_digits += DIGIT_MAP[last_scancode]
+        play_sound(str(DIGIT_MAP[last_scancode]))
+
+def remove_digit():
+    global curr_digits
+    if len(curr_digits) > 0:
+        curr_digits = curr_digits[:-1]
+        play_sound('backspace')
+    else:
+        play_sound('nope')
+    
+def clear_digits():
+    global curr_digits
+    curr_digits = ''
+
+def digit_submitter():
+    curr_state["SUBMIT_TO"](curr_digits)
+    if curr_state["SUBMIT_SOUND"]:
+        play_sound(curr_state["SUBMIT_SOUND"], blocking=True)
+    for digit in curr_digits:
+        time.sleep(0.25)
+        play_sound(str(digit), blocking=True)
+
+GENERIC_INPUT_NUM_STATE = {
+    "SUBMIT_TO": None,
+    "SUBMIT_SOUND": None,
+    "INPUTS": {
+        71: append_digit,
+        72: append_digit,
+        73: append_digit,
+        75: append_digit,
+        76: append_digit,
+        77: append_digit,
+        79: append_digit,
+        80: append_digit,
+        81: append_digit,
+        82: append_digit,
+        83: append_digit,
+        14: remove_digit,
+        96: [digit_submitter, clear_digits, move_state(MAIN_STATE)],
+    }
+}
+
+ENTER_SLEEP_ENTRY_STATE = copy.deepcopy(GENERIC_INPUT_NUM_STATE)
+ENTER_SLEEP_ENTRY_STATE["SUBMIT_TO"] = insert_sleep
+ENTER_SLEEP_ENTRY_STATE["SUBMIT_SOUND"] = "savedSleep"
+ENTER_WEIGHT_ENTRY_STATE = copy.deepcopy(GENERIC_INPUT_NUM_STATE)
+ENTER_WEIGHT_ENTRY_STATE["SUBMIT_TO"] = insert_weight
+ENTER_SLEEP_ENTRY_STATE["SUBMIT_SOUND"] = "savedWeight"
+
+MAIN_STATE = {
+    "INPUTS": {
+        13: [sound_player('enterWeight'),move_state(ENTER_WEIGHT_ENTRY_STATE)],
+        55: [sound_player('enterSleep'),move_state(ENTER_SLEEP_ENTRY_STATE)],
+        96: sound_player('key')
+    }
+}
 
 while True:
-    log_to_debug_pg(keyboard.read_event().to_json())
+    last_scancode = keyboard.read_event().scan_code
+    if hasattr(curr_state["INPUTS"][last_scancode], "__iter__"):
+        for action in curr_state["INPUTS"][last_scancode]:
+            action()
+    else:
+        curr_state["INPUTS"][last_scancode]()
