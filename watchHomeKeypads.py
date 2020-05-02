@@ -177,11 +177,14 @@ try:
             continue
 
         last_scancode = keyEvent.scan_code
-        if hasattr(curr_state["INPUTS"][last_scancode], "__iter__"):
-            for action in curr_state["INPUTS"][last_scancode]:
-                action()
+        if last_scancode in curr_state["INPUTS"]:
+            if hasattr(curr_state["INPUTS"][last_scancode], "__iter__"):
+                for action in curr_state["INPUTS"][last_scancode]:
+                    action()
+            else:
+                curr_state["INPUTS"][last_scancode]()
         else:
-            curr_state["INPUTS"][last_scancode]()
+            play_sound("nope")
 except KeyboardInterrupt:
     exit(0)
 except:
