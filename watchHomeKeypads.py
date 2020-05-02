@@ -83,7 +83,7 @@ def insert_sleep (sleepHrs):
 #
 # The keypad entry system is a state machine. 
 # Inputs are scancodes, mapped to functions.
-# States always timeout after a while.
+# TODO States always timeout after a while.
 # Unknown scancodes make mad beeps.
 # 
 
@@ -136,6 +136,9 @@ def digit_submitter():
     curr_state["SUBMIT_TO"](curr_digits)
     if curr_state["SUBMIT_SOUND"]:
         play_sound(curr_state["SUBMIT_SOUND"], blocking=True)
+    speak_digits()
+
+def speak_digits():
     for digit in curr_digits:
         time.sleep(0.3)
         play_sound(str(digit) if digit != '.' else 'point', blocking=True)
@@ -157,6 +160,7 @@ GENERIC_INPUT_NUM_STATE = {
         82: append_digit,
         83: append_digit,
         14: remove_digit,
+        13: speak_digits,
         96: [digit_submitter, clear_digits, move_state(MAIN_STATE)],
     }
 }
