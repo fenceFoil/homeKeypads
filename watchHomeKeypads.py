@@ -87,8 +87,10 @@ curr_state = None
 MAIN_STATE = None # Avoid catch-22 as sub-states note they want to return to MAIN_STATE
 
 def move_state(newState):
-    global curr_state
-    curr_state = newState
+    def state_mover():
+        global curr_state
+        curr_state = newState
+    return state_mover
 
 curr_digits = ''
 
