@@ -136,7 +136,7 @@ def digit_submitter():
         play_sound(curr_state["SUBMIT_SOUND"], blocking=True)
     for digit in curr_digits:
         time.sleep(1)
-        play_sound(str(digit), blocking=True)
+        play_sound(str(digit) if digit != '.' else 'point', blocking=True)
 
 GENERIC_INPUT_NUM_STATE = {
     "SUBMIT_TO": None,
