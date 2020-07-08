@@ -7,6 +7,7 @@ from logging import debug, info, warning, error, critical, exception
 import psycopg2
 import time
 import os
+import schedule
 import subprocess
 
 # ---- LOGGER SETUP ----
@@ -172,10 +173,39 @@ ENTER_WEIGHT_ENTRY_STATE = copy.deepcopy(GENERIC_INPUT_NUM_STATE)
 ENTER_WEIGHT_ENTRY_STATE["SUBMIT_TO"] = insert_weight
 ENTER_WEIGHT_ENTRY_STATE["SUBMIT_SOUND"] = "savedWeight"
 
+def play_screen_timer3():
+    play_sound('getBackToWork')
+    return schedule.CancelJob
+
+def play_screen_timer2():
+    play_sound('lookAway')
+    schedule.every(25).seconds.do(play_screen_timer3)
+    return schedule.CancelJob
+
+def play_screen_timer():
+    """Method called by scheduler to make the screen timer sounds"""
+    play_sound('Blip_Select9')
+    schedule.every(10).seconds.do(play_screen_timer2)
+
+def test_screen_timer():
+    play_screen_timer()
+    return schedule.CancelJob
+
+screen_timer_on = False
+def screen_timer_toggler():
+    global screen_timer_on
+    screen_timer_on = not screen_timer_on
+    play_sound('screenTimerOn' if screen_timer_on else 'screenTimerOff')
+    if screen_timer_on:
+        schedule.every(20*60+10+25).seconds.do(play_screen_timer).tag('screen_timer')
+    else:
+        schedule.clear('screen_timer')
+
 MAIN_STATE.update({
     "INPUTS": {
-        13: [sound_player('enterWeight'),move_state(ENTER_WEIGHT_ENTRY_STATE)],
-        55: [sound_player('enterSleep'),move_state(ENTER_SLEEP_ENTRY_STATE)],
+        13: [sound_player('enterWeight'),move_state(ENTER_WEIGHT_ENTRY_STATE)], # = enter weight
+        55: [sound_player('enterSleep'),move_state(ENTER_SLEEP_ENTRY_STATE)], # * enter sleep
+        98: screen_timer_toggler, # / toggle screen timer
         96: sound_player('key')
     }
 })
@@ -184,6 +214,8 @@ curr_state = MAIN_STATE
 try:
     print ("Entered Home Keypad Entry state engine. If you want bash, press Ctrl+C")
     while True:
+        schedule.run_pending()
+
         keyEvent = keyboard.read_event()
         if keyEvent.event_type != 'down':
             continue
