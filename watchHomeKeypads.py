@@ -81,6 +81,12 @@ def insert_sleep (sleepHrs):
         cursor.execute("INSERT INTO sleep (sleep_entering_date, first_sleep) VALUES (%s,%s) ON conflict (sleep_entering_date) do update set first_sleep = excluded.first_sleep", (datetime.now(), sleepHrs))
     use_pg_cursor_to(insert_values)
 
+def insert_sleep_time (sleepTime):
+    def insert_values(cursor):
+        info ("Inserting sleep time: {}".format(sleepTime))
+        cursor.execute("INSERT INTO sleep (sleep_entering_date, wake_time) VALUES (%s,%s) ON conflict (sleep_entering_date) do update set wake_time = excluded.wake_time", (datetime.now(), sleepTime))
+    use_pg_cursor_to(insert_values)
+
 #
 # The keypad entry system is a state machine. 
 # Inputs are scancodes, mapped to functions.
@@ -169,6 +175,10 @@ GENERIC_INPUT_NUM_STATE = {
 ENTER_SLEEP_ENTRY_STATE = copy.deepcopy(GENERIC_INPUT_NUM_STATE)
 ENTER_SLEEP_ENTRY_STATE["SUBMIT_TO"] = insert_sleep
 ENTER_SLEEP_ENTRY_STATE["SUBMIT_SOUND"] = "savedSleep"
+ENTER_SLEEP_ENTRY_STATE["INPUTS"][55] = [sound_player('enterSleepTime'),move_state(ENTER_SLEEP_TIME_ENTRY_STATE)]
+ENTER_SLEEP_TIME_ENTRY_STATE = copy.deepcopy(GENERIC_INPUT_NUM_STATE)
+ENTER_SLEEP_ENTRY_STATE["SUBMIT_TO"] = insert_sleep_time
+ENTER_SLEEP_ENTRY_STATE["SUBMIT_SOUND"] = "savedSleepTime"
 ENTER_WEIGHT_ENTRY_STATE = copy.deepcopy(GENERIC_INPUT_NUM_STATE)
 ENTER_WEIGHT_ENTRY_STATE["SUBMIT_TO"] = insert_weight
 ENTER_WEIGHT_ENTRY_STATE["SUBMIT_SOUND"] = "savedWeight"
