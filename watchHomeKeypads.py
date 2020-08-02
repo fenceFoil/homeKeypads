@@ -9,6 +9,7 @@ import time
 import os
 import schedule
 import subprocess
+import threading
 
 # ---- LOGGER SETUP ----
 
@@ -221,11 +222,16 @@ MAIN_STATE.update({
 })
 curr_state = MAIN_STATE
 
+# Scheduler needs to have its own loop because keyboard.read_event() is blocking
+def update_scheduler_thread():
+    while True:
+        schedule.run_pending()
+        time.sleep(0.5)
+threading.Thread(target=update_scheduler_thread, daemon=True).start()
+
 try:
     print ("Entered Home Keypad Entry state engine. If you want bash, press Ctrl+C")
     while True:
-        schedule.run_pending()
-
         keyEvent = keyboard.read_event()
         if keyEvent.event_type != 'down':
             continue
