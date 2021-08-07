@@ -1,3 +1,4 @@
 requests
 psychopg2
 schedule
+pygame
