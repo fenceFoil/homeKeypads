@@ -49,9 +49,10 @@ SOUNDDIR = 'homeKeypads/sounds/'
 try:
     for subdir, dirs, files in os.walk(SOUNDDIR):
         for file in chain.from_iterable(iglob(os.path.join(SOUNDDIR,p)) for p in ("*.wav")) :
-                baseName = file[:-4]
-                debug('Caching sound {} under key {}'.format(file, baseName))
-                SOUNDS[baseName] = pygame.mixer.Sound(file)
+                if len(file) > 4:
+                    baseName = file[:-4]
+                    debug('Caching sound {} under key {}'.format(file, baseName))
+                    SOUNDS[baseName] = pygame.mixer.Sound(file)
     info ("Sound cache built!")
 except Exception as ex:
     exception("Unexpected error while caching sound effects")
