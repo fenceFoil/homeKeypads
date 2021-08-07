@@ -43,14 +43,12 @@ pygame.mixer.init()
 def play_sound(soundName, blocking=False):
     if blocking:
         #subprocess.Popen(["aplay", "homeKeypads/sounds/{}.wav".format(soundName)]).wait()
-        pygame.mixer.music.load('homeKeypads/sounds/{}.wav'.format(soundName))
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
+        pygame.mixer.Sound('homeKeypads/sounds/{}.wav'.format(soundName)).play()
+        while pygame.mixer.get_busy():
             time.sleep(0.1)
     else:
         #subprocess.Popen(["aplay", "homeKeypads/sounds/{}.wav".format(soundName)])
-        pygame.mixer.music.load('homeKeypads/sounds/{}.wav'.format(soundName))
-        pygame.mixer.music.play()
+        pygame.mixer.Sound('homeKeypads/sounds/{}.wav'.format(soundName)).play()
 
 def sound_player(soundName):
     def player():
