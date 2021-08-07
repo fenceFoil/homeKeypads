@@ -1,5 +1,6 @@
 import copy
-from datetime import datetime
+from datetime import datetime, date
+from datetime import time as ttime
 from gotifyLoggingHandler import GotifyHandler
 import keyboard
 import logging
@@ -93,13 +94,22 @@ def insert_weight (weight):
 def insert_sleep (sleepHrs):
     def insert_values(cursor):
         info ("Inserting sleep: {}".format(sleepHrs))
-        cursor.execute("INSERT INTO sleep (sleep_entering_date, first_sleep) VALUES (%s,%s) ON conflict (sleep_entering_date) do update set first_sleep = excluded.first_sleep", (datetime.now(), sleepHrs))
+        cursor.execute("INSERT INTO selftracking.sleep (sleep_entering_day, entered_at, first_sleep_hrs, from_keypad) VALUES (%s,%s,%s,true) ON conflict (sleep_entering_day) do update set first_sleep_hrs = excluded.first_sleep_hrs", (date.today(), datetime.now().timetz(), sleepHrs))
     use_pg_cursor_to(insert_values)
 
 def insert_sleep_time (sleepTime):
     def insert_values(cursor):
         info ("Inserting sleep time: {}".format(sleepTime))
-        cursor.execute("INSERT INTO sleep (sleep_entering_date, wake_time) VALUES (%s,%s) ON conflict (sleep_entering_date) do update set wake_time = excluded.wake_time", (datetime.now(), sleepTime))
+        sleepTimeFinal = None
+        if len(sleepTime) <= 2:
+            # I entered in just the hour between 0 and 23
+            sleepTimeFinal = ttime(hour=int(sleepTime))
+        else:
+            # I entered in 1 or 2 hour digits and two minute digits
+            minute = sleepTime[-2:]
+            hour = sleepTime[:-2]
+            sleepTimeFinal = ttime(hour=hour, minute=minute)
+        cursor.execute("INSERT INTO selftracking.sleep (sleep_entering_day, entered_at, wake_time, from_keypad) VALUES (%s,%s,%s,true) ON conflict (sleep_entering_day) do update set wake_time = excluded.wake_time", (date.today(), datetime.now(), sleepTimeFinal))
     use_pg_cursor_to(insert_values)
 
 #
