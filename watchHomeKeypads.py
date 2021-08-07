@@ -52,7 +52,7 @@ try:
     for file in [f for f in listdir(SOUNDDIR) if isfile(join(SOUNDDIR, f))]:
         baseName = file[:-4]
         debug('Caching sound {} under key {}'.format(file, baseName))
-        SOUNDS[baseName] = pygame.mixer.Sound(file)
+        SOUNDS[baseName] = pygame.mixer.Sound(join(SOUNDDIR, file))
     info ("Sound cache built!")
 except Exception as ex:
     exception("Unexpected error while caching sound effects")
