@@ -46,11 +46,16 @@ pygame.mixer.init()
 # Build a cache of loaded sounds to cut sound effect latency on button press
 SOUNDS = {}
 SOUNDDIR = 'homeKeypads/sounds/'
-for subdir, dirs, files in os.walk(SOUNDDIR):
-    for file in chain.from_iterable(iglob(os.path.join(SOUNDDIR,p)) for p in ("*.wav")) :
-            print(os.path.join(subdir, file))
-            baseName = file[:-4]
-            SOUNDS[baseName] = pygame.mixer.Sound(file)
+try:
+    for subdir, dirs, files in os.walk(SOUNDDIR):
+        for file in chain.from_iterable(iglob(os.path.join(SOUNDDIR,p)) for p in ("*.wav")) :
+                baseName = file[:-4]
+                debug('Caching sound {} under key {}'.format(file, baseName))
+                SOUNDS[baseName] = pygame.mixer.Sound(file)
+    info ("Sound cache built!")
+except Exception as ex:
+    exception("Unexpected error while caching sound effects")
+    subprocess.Popen(["aplay", "homeKeypads/sounds/{}.wav".format('error')])
 
 def play_sound(soundName, blocking=False):
     SOUNDS[soundName].play()
