@@ -16,6 +16,7 @@ from itertools import chain
 from glob import iglob
 from os import listdir
 from os.path import isfile, join
+import pytz
 
 # ---- LOGGER SETUP ----
 
@@ -42,6 +43,8 @@ if not os.path.isfile('.gotifyWasTestedForHomeKeypads'):
 info ("New instance started")
 
 # ---- END LOGGER SETUP ----
+
+TIMEZONE = pytz.timezone("US/Eastern")
 
 pygame.mixer.init()
 
@@ -100,22 +103,27 @@ def insert_weight (weight):
 def insert_sleep (sleepHrs):
     def insert_values(cursor):
         info ("Inserting sleep: {}".format(sleepHrs))
-        cursor.execute("INSERT INTO selftracking.sleep (sleep_entering_day, entered_at, first_sleep_hrs, from_keypad) VALUES (%s,%s,%s,true) ON conflict (sleep_entering_day) do update set first_sleep_hrs = excluded.first_sleep_hrs", (date.today(), datetime.now().timetz(), sleepHrs))
+        cursor.execute("INSERT INTO selftracking.sleep (sleep_entering_day, entered_at, first_sleep_hrs, from_keypad) VALUES (%s,%s,%s,true) ON conflict (sleep_entering_day) do update set first_sleep_hrs = excluded.first_sleep_hrs", (date.today(), TIMEZONE.localize(datetime.now()), sleepHrs))
     use_pg_cursor_to(insert_values)
 
 def insert_sleep_time (sleepTime):
     def insert_values(cursor):
         info ("Inserting sleep time: {}".format(sleepTime))
-        sleepTimeFinal = None
+        sleepTimeFinal = datetime.now()
         if len(sleepTime) <= 2:
             # I entered in just the hour between 0 and 23
-            sleepTimeFinal = ttime(hour=int(sleepTime))
+            sleepTimeFinal.hour=int(sleepTime)
+            sleepTimeFinal.minute = 0
+            sleepTimeFinal.second = 0
+            sleepTimeFinal.microsecond = 0
         else:
             # I entered in 1 or 2 hour digits and two minute digits
-            minute = sleepTime[-2:]
-            hour = sleepTime[:-2]
-            sleepTimeFinal = ttime(hour=hour, minute=minute)
-        cursor.execute("INSERT INTO selftracking.sleep (sleep_entering_day, entered_at, wake_time, from_keypad) VALUES (%s,%s,%s,true) ON conflict (sleep_entering_day) do update set wake_time = excluded.wake_time", (date.today(), datetime.now(), sleepTimeFinal))
+            sleepTimeFinal.hour=int(sleepTime[:-2])
+            sleepTimeFinal.minute = int(sleepTime[-2:])
+            sleepTimeFinal.second = 0
+            sleepTimeFinal.microsecond = 0
+        sleepTimeFinal = TIMEZONE.localize(sleepTimeFinal)
+        cursor.execute("INSERT INTO selftracking.sleep (sleep_entering_day, entered_at, wake_time, from_keypad) VALUES (%s,%s,%s,true) ON conflict (sleep_entering_day) do update set wake_time = excluded.wake_time", (date.today(), TIMEZONE.localize(datetime.now()), sleepTimeFinal.timetz()))
     use_pg_cursor_to(insert_values)
 
 #
