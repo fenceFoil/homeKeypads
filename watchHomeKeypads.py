@@ -11,6 +11,8 @@ import schedule
 import subprocess
 import threading
 import pygame
+from itertools import chain
+from glob import iglob
 
 # ---- LOGGER SETUP ----
 
@@ -40,15 +42,20 @@ info ("New instance started")
 
 pygame.mixer.init()
 
+# Build a cache of loaded sounds to cut sound effect latency on button press
+SOUNDS = {}
+SOUNDDIR = 'homeKeypads/sounds/'
+for subdir, dirs, files in os.walk(SOUNDDIR):
+    for file in chain.from_iterable(iglob(os.path.join(SOUNDDIR,p)) for p in ("*.wav")) :
+            print(os.path.join(subdir, file))
+            baseName = file[:-4]
+            SOUNDS[baseName] = pygame.mixer.Sound(file)
+
 def play_sound(soundName, blocking=False):
+    SOUNDS[soundName].play()
     if blocking:
-        #subprocess.Popen(["aplay", "homeKeypads/sounds/{}.wav".format(soundName)]).wait()
-        pygame.mixer.Sound('homeKeypads/sounds/{}.wav'.format(soundName)).play()
         while pygame.mixer.get_busy():
             time.sleep(0.1)
-    else:
-        #subprocess.Popen(["aplay", "homeKeypads/sounds/{}.wav".format(soundName)])
-        pygame.mixer.Sound('homeKeypads/sounds/{}.wav'.format(soundName)).play()
 
 def sound_player(soundName):
     def player():
